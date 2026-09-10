@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports: ["8080:8080"]
+    volumes: ["mission-data:/app/data"]
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    ports: ["8081:8080"]
+    volumes:
+      - "jenkins_home:/var/jenkins_home"
+      # Lets the Jenkinsfile's `agent { docker { image '...' } }` spin up the
+      # build container (Maven + JDK + headless Chrome) that runs `mvn verify`,
+      # including the Selenium system tests. Requires the Docker Pipeline plugin.
+      - "/var/run/docker.sock:/var/run/docker.sock"
+volumes:
+  mission-data:
+  jenkins_home:

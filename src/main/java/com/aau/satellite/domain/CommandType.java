@@ -1,0 +1,10 @@
+package com.aau.satellite.domain;
+
+public enum CommandType {
+  REQUEST_TELEMETRY,
+  UPDATE_CONFIGURATION,
+  ACTIVATE_SENSOR,
+  DEACTIVATE_SENSOR,
+  ENTER_SAFE_MODE,
+  RESTART_COMMUNICATION
+}

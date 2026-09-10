@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="topbar(active)">
+    <nav class="topbar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">✦</span>
+            <span>
+                <strong>SAT-MC</strong>
+                <small>Mission Control</small>
+            </span>
+        </a>
+
+        <div class="nav-links">
+            <a href="/dashboard" th:classappend="${active == 'dashboard'} ? ' active' : ''">Dashboard</a>
+            <a href="/satellites" th:classappend="${active == 'satellites'} ? ' active' : ''">Satellites</a>
+            <a href="/alerts" th:classappend="${active == 'alerts'} ? ' active' : ''">Alerts</a>
+            <a href="/missions" th:classappend="${active == 'missions'} ? ' active' : ''">Missions</a>
+            <a href="/commands" th:classappend="${active == 'commands'} ? ' active' : ''">Commands</a>
+            <a href="/audit" th:classappend="${active == 'audit'} ? ' active' : ''">Audit</a>
+        </div>
+
+        <form class="logout-form" action="/logout" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="user-pill" type="submit">
+                <span class="avatar">U</span>
+                <span class="logout-label">Sign out</span>
+            </button>
+        </form>
+    </nav>
+</header>
+</body>
+</html>

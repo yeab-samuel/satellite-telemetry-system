@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'SAT-MC | Mission Control'">SAT-MC | Mission Control</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<main class="login-shell">
+    <section class="login-visual">
+        <div class="brand">
+            <span class="brand-mark">✦</span>
+            <span><strong>SAT-MC</strong><small>Mission Control</small></span>
+        </div>
+        <h1>Control the mission.<br>Trust the evidence.</h1>
+        <p>Satellite Mission Control and Telemetry Management System — a focused simulator designed for reliable operations and professional software testing.</p>
+        <div class="orbit" aria-hidden="true"></div>
+    </section>
+
+    <section class="login-panel">
+        <div class="login-card">
+            <div class="brand">
+                <span class="brand-mark">✦</span>
+                <span><strong>SAT-MC</strong><small>Secure operator access</small></span>
+            </div>
+
+            <div class="page-header" style="margin-bottom:18px">
+                <div>
+                    <div class="eyebrow">Welcome back</div>
+                    <h1 style="font-size:30px">Sign in to Mission Control</h1>
+                    <p class="page-subtitle">Use one of the seeded accounts below.</p>
+                </div>
+            </div>
+
+            <div class="notice error" th:if="${loginError}">Username or password is incorrect. Please try again.</div>
+            <div class="notice success" th:if="${loggedOut}">You have been signed out successfully.</div>
+
+            <form action="/login" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input id="username" class="input" name="username" autocomplete="username" placeholder="Enter username" required autofocus>
+                </div>
+                <div class="field" style="margin-top:15px">
+                    <label for="password">Password</label>
+                    <input id="password" class="input" type="password" name="password" autocomplete="current-password" placeholder="Enter password" required>
+                </div>
+                <button class="btn" style="width:100%; margin-top:20px; padding:12px">Sign in to Mission Control</button>
+            </form>
+
+            <div class="demo-accounts">
+                <div class="small" style="margin-bottom:7px">Demo accounts</div>
+                <div class="demo-account"><span>Administrator</span><code>admin / admin123</code></div>
+                <div class="demo-account"><span>Operator</span><code>operator / operator123</code></div>
+                <div class="demo-account"><span>Engineer</span><code>engineer / engineer123</code></div>
+                <div class="demo-account"><span>Viewer</span><code>viewer / viewer123</code></div>
+            </div>
+        </div>
+    </section>
+</main></body></html>

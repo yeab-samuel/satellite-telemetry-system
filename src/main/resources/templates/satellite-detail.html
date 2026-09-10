@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'SAT-MC | Mission Control'">SAT-MC | Mission Control</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar(${active})}"></div>
+<main class="container">
+    <div class="page-header">
+        <div><div class="eyebrow">Satellite profile</div><h1 th:text="${satellite.name}">Abyssinia-1</h1><p class="page-subtitle" th:text="${satellite.code + ' · ' + satellite.model + ' · ' + satellite.orbitType}">SAT-001 · CubeSat-X · LEO</p></div>
+        <a class="btn secondary" href="/satellites">← Back to fleet</a>
+    </div>
+
+    <div class="grid">
+        <section class="card">
+            <div class="card-title"><h2>Identity & status</h2><span class="badge success" th:text="${satellite.status}">OPERATIONAL</span></div>
+            <div class="grid">
+                <div class="muted-box"><div class="kpi">Code<strong th:text="${satellite.code}">SAT-001</strong></div></div>
+                <div class="muted-box"><div class="kpi">Model<strong th:text="${satellite.model}">CubeSat-X</strong></div></div>
+                <div class="muted-box"><div class="kpi">Orbit<strong th:text="${satellite.orbitType}">LEO</strong></div></div>
+                <div class="muted-box"><div class="kpi">Station<strong th:text="${satellite.groundStation != null ? satellite.groundStation.name : 'Unassigned'}">Addis Ground Station</strong></div></div>
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-title"><h2>Lifecycle</h2></div>
+            <form method="post" th:action="@{/satellites/{id}/state(id=${satellite.id})}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="field"><label>Target state</label><select name="status"><option th:each="s : ${T(com.aau.satellite.domain.SatelliteStatus).values()}" th:value="${s}" th:text="${s}"></option></select></div>
+                <button class="btn" style="margin-top:15px" type="submit">Transition state</button>
+            </form>
+            <a class="btn secondary" style="margin-top:10px" th:href="@{/configuration/{id}(id=${satellite.id})}">Configure telemetry</a>
+        </section>
+    </div>
+
+    <section class="card">
+        <div class="card-title"><h2>Recent telemetry</h2><span class="small">Latest 50 readings</span></div>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Time</th><th>Temp °C</th><th>Battery V</th><th>Battery %</th><th>Signal dBm</th><th>Packet loss %</th></tr></thead>
+            <tbody>
+                <tr th:each="t : ${telemetry}"><td class="small" th:text="${t.recordedAt}">2026-09-06</td><td th:text="${t.temperatureC}">20</td><td th:text="${t.batteryVoltage}">7.5</td><td th:text="${t.batteryPercentage}">80</td><td th:text="${t.signalStrengthDb}">-50</td><td th:text="${t.packetLossPercent}">0</td></tr>
+                <tr th:if="${#lists.isEmpty(telemetry)}"><td colspan="6" class="empty">No telemetry readings have been ingested for this satellite.</td></tr>
+            </tbody>
+        </table></div>
+    </section>
+</main></body></html>

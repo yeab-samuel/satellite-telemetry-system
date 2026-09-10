@@ -1,0 +1,116 @@
+package com.aau.satellite.system;
+
+import java.util.List;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+
+public class SatellitesPage extends BasePage {
+
+  private final BaseTest.UserRole currentUserRole;
+
+  // Locators
+  private final By searchInput = By.id("q");
+  private final By statusDropdown = By.id("status");
+  private final By applyFiltersButton = By.cssSelector("button[type='submit']");
+  private final By resetButton = By.cssSelector("a[href='/satellites']");
+  private final By tableWrap = By.cssSelector(".table-wrap");
+  private final By tableRows = By.cssSelector(".table-wrap table tbody tr");
+  private final By satelliteLinks = By.cssSelector(".table-wrap table tbody tr td:first-child a");
+  private final By emptyMessage = By.cssSelector(".empty");
+  private final By resultCount = By.cssSelector(".card-title .small");
+
+  public SatellitesPage(WebDriver driver, BaseTest.UserRole role) {
+    super(driver);
+    this.currentUserRole = role;
+  }
+
+  public SatellitesPage(WebDriver driver) {
+    this(driver, BaseTest.UserRole.OPERATOR);
+  }
+
+  public void open() {
+    navigateTo(BASE_URL + "/satellites");
+    waitForElement(tableWrap);
+  }
+
+  public boolean isSatellitesPageLoaded() {
+    return isDisplayed(searchInput) && isDisplayed(statusDropdown);
+  }
+
+  public void searchSatellites(String searchTerm) {
+    sendKeys(searchInput, searchTerm);
+    click(applyFiltersButton);
+    wait.until(ExpectedConditions.presenceOfElementLocated(tableWrap));
+  }
+
+  public void filterByStatus(String status) {
+    Select select = new Select(driver.findElement(statusDropdown));
+    select.selectByVisibleText(status);
+    click(applyFiltersButton);
+    wait.until(ExpectedConditions.presenceOfElementLocated(tableWrap));
+  }
+
+  public void resetFilters() {
+    click(resetButton);
+    wait.until(ExpectedConditions.urlToBe(BASE_URL + "/satellites"));
+  }
+
+  public int getSatelliteCount() {
+    List<WebElement> rows = driver.findElements(tableRows);
+    if (isDisplayed(emptyMessage)) {
+      return 0;
+    }
+    return rows.size();
+  }
+
+  public SatelliteDetailPage clickFirstSatellite() {
+    click(satelliteLinks);
+    wait.until(ExpectedConditions.urlContains("/satellites/"));
+    return new SatelliteDetailPage(driver, currentUserRole);
+  }
+
+  public String getFirstSatelliteCode() {
+    List<WebElement> links = driver.findElements(satelliteLinks);
+    return links.size() > 0 ? links.get(0).getText() : "";
+  }
+
+  public String getFirstSatelliteStatus() {
+    WebElement firstRow =
+        driver.findElement(By.cssSelector(".table-wrap table tbody tr:first-child"));
+    WebElement statusBadge = firstRow.findElement(By.cssSelector(".badge"));
+    return statusBadge.getText();
+  }
+
+  public boolean hasSatellites() {
+    return driver.findElements(tableRows).size() > 0 && !isDisplayed(emptyMessage);
+  }
+
+  public String getEmptyMessage() {
+    return getText(emptyMessage);
+  }
+
+  public String getResultCount() {
+    return getText(resultCount);
+  }
+
+  public boolean isSearchFieldDisplayed() {
+    return isDisplayed(searchInput);
+  }
+
+  public boolean isStatusDropdownDisplayed() {
+    return isDisplayed(statusDropdown);
+  }
+
+  public boolean isApplyFiltersButtonDisplayed() {
+    return isDisplayed(applyFiltersButton);
+  }
+
+  public boolean isFilterApplied(String filterParam) {
+    return driver.getCurrentUrl().contains(filterParam);
+  }
+
+  public boolean canDeleteSatellites() {
+    return currentUserRole == BaseTest.UserRole.ADMIN;
+  }
+}

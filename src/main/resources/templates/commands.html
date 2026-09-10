@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'SAT-MC | Mission Control'">SAT-MC | Mission Control</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar(${active})}"></div>
+<main class="container">
+    <div class="page-header"><div><div class="eyebrow">Command center</div><h1>Satellite Commands</h1><p class="page-subtitle">Issue authorized simulator commands and inspect their execution history.</p></div></div>
+    <section class="card">
+        <div class="card-title"><h2>Issue command</h2><span class="small">Role permissions are enforced by Spring Security and the service layer.</span></div>
+        <form method="post" action="/commands">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="formgrid">
+                <div class="field"><label>Satellite</label><select name="satelliteId"><option th:each="s : ${satellites}" th:value="${s.id}" th:text="${s.code + ' — ' + s.name}"></option></select></div>
+                <div class="field"><label>Command type</label><select name="type"><option th:each="t : ${T(com.aau.satellite.domain.CommandType).values()}" th:value="${t}" th:text="${t}"></option></select></div>
+            </div>
+            <button class="btn" style="margin-top:18px" type="submit">Send command</button>
+        </form>
+    </section>
+    <section class="card">
+        <div class="table-wrap"><table>
+            <thead><tr><th>Satellite</th><th>Command</th><th>Status</th><th>Issued by</th><th>Time</th></tr></thead>
+            <tbody>
+                <tr th:each="c : ${commands}"><td th:text="${c.satellite.code}">SAT-001</td><td th:text="${c.type}">REQUEST_TELEMETRY</td><td><span class="badge success" th:text="${c.status}">COMPLETED</span></td><td th:text="${c.issuedBy}">operator</td><td class="small" th:text="${c.createdAt}">2026-09-06</td></tr>
+                <tr th:if="${#lists.isEmpty(commands)}"><td colspan="5" class="empty">No commands have been issued.</td></tr>
+            </tbody>
+        </table></div>
+    </section>
+</main></body></html>
