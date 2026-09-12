@@ -40,6 +40,10 @@ public class SatellitesPage extends BasePage {
 
   public void searchSatellites(String searchTerm) {
     sendKeys(searchInput, searchTerm);
+    // Make sure the browser has actually registered the typed value before
+    // submitting — on slower/CI environments, submit() can otherwise fire
+    // before the input's value has "settled", submitting an empty query.
+    wait.until(ExpectedConditions.attributeToBe(searchInput, "value", searchTerm));
     driver.findElement(searchInput).submit();
     wait.until(ExpectedConditions.urlContains("q=" + searchTerm));
   }
