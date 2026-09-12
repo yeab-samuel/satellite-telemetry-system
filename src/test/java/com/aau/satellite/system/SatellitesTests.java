@@ -21,7 +21,7 @@ class SatellitesTests extends BaseTest {
 
     assertTrue(driver.findElement(By.id("q")).isDisplayed());
     assertTrue(driver.findElement(By.id("status")).isDisplayed());
-    assertTrue(driver.findElement(By.cssSelector("button[type='submit']")).isDisplayed());
+    assertTrue(driver.findElement(By.id("applyFilters")).isDisplayed());
     assertTrue(driver.findElement(By.cssSelector("a[href='/satellites']")).isDisplayed());
   }
 
@@ -33,7 +33,7 @@ class SatellitesTests extends BaseTest {
 
     WebElement searchInput = driver.findElement(By.id("q"));
     searchInput.sendKeys("Abyssinia");
-    driver.findElement(By.cssSelector("button[type='submit']")).click();
+    driver.findElement(By.id("applyFilters")).click();
 
     wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".table-wrap")));
     assertTrue(driver.getCurrentUrl().contains("q=Abyssinia"));
@@ -47,7 +47,7 @@ class SatellitesTests extends BaseTest {
 
     Select statusSelect = new Select(driver.findElement(By.id("status")));
     statusSelect.selectByVisibleText("OPERATIONAL");
-    driver.findElement(By.cssSelector("button[type='submit']")).click();
+    driver.findElement(By.id("applyFilters")).click();
 
     wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".table-wrap")));
     assertTrue(driver.getCurrentUrl().contains("status=OPERATIONAL"));
@@ -61,7 +61,7 @@ class SatellitesTests extends BaseTest {
 
     WebElement searchInput = driver.findElement(By.id("q"));
     searchInput.sendKeys("SAT-001");
-    driver.findElement(By.cssSelector("button[type='submit']")).click();
+    driver.findElement(By.id("applyFilters")).click();
 
     driver.findElement(By.cssSelector("a[href='/satellites']")).click();
 
@@ -76,8 +76,8 @@ class SatellitesTests extends BaseTest {
     navigateTo("/satellites");
 
     WebElement firstSatelliteLink =
-        driver.findElement(
-            By.cssSelector(".table-wrap table tbody tr:first-child td:first-child a"));
+            driver.findElement(
+                    By.cssSelector(".table-wrap table tbody tr:first-child td:first-child a"));
     firstSatelliteLink.click();
 
     wait.until(ExpectedConditions.urlContains("/satellites/"));
@@ -92,7 +92,7 @@ class SatellitesTests extends BaseTest {
 
     WebElement searchInput = driver.findElement(By.id("q"));
     searchInput.sendKeys("NONEXISTENT_SATELLITE_XYZ");
-    driver.findElement(By.cssSelector("button[type='submit']")).click();
+    driver.findElement(By.id("applyFilters")).click();
 
     wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".table-wrap")));
     WebElement emptyMsg = driver.findElement(By.cssSelector(".empty"));
