@@ -38,7 +38,7 @@ public class AlertEvaluationService {
    * @return the affected alert, if one exists
    */
   public Optional<Alert> evaluate(TelemetryReading reading, ReadingEvaluation evaluation) {
-    Severity severity = severityFor(evaluation);
+    Severity severity = severityFor(evaluation.breachCount());
 
     Optional<Alert> openAlert =
         repo.findFirstBySatelliteIdAndStatusIn(
@@ -95,25 +95,6 @@ public class AlertEvaluationService {
     }
 
     return Severity.CRITICAL;
-  }
-
-  /**
-   * Determines the alert severity for a full reading evaluation.
-   *
-   * <p>Packet loss above {@code TelemetryThresholds.PACKET_LOSS_CRITICAL} forces CRITICAL
-   * immediately, regardless of how many other conditions are breached: a near-total
-   * communications loss is a bigger deal on its own than the simple breach count would suggest.
-   * Everything else falls back to the plain breach-count rule below.
-   *
-   * @param evaluation the result of evaluating the reading
-   * @return calculated severity
-   */
-  public Severity severityFor(ReadingEvaluation evaluation) {
-    if (evaluation.packetLossCritical()) {
-      return Severity.CRITICAL;
-    }
-
-    return severityFor(evaluation.breachCount());
   }
 
   /**

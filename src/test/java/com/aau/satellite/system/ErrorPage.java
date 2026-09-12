@@ -5,8 +5,8 @@ import org.openqa.selenium.*;
 public class ErrorPage extends BasePage {
 
   // Locators
-  private final By errorContainer = By.cssSelector("main.container");
-  private final By errorMessage = By.cssSelector(".page-subtitle");
+  private final By errorContainer = By.cssSelector(".error-container, .error-page");
+  private final By errorMessage = By.cssSelector(".error-message, .message");
 
   public ErrorPage(WebDriver driver) {
     super(driver);

@@ -15,7 +15,7 @@ public class ConfigurationPage extends BasePage {
   private final By batteryMaxInput = By.cssSelector("input[name='batteryMax']");
   private final By signalMinInput = By.cssSelector("input[name='signalMin']");
   private final By packetLossMaxInput = By.cssSelector("input[name='packetLossMax']");
-  private final By saveButton = By.cssSelector("button[type='submit']");
+  private final By saveButton = By.cssSelector("main form button[type='submit']");
   private final By cancelButton = By.cssSelector("a[href*='/satellites/']");
   private final By configForm = By.cssSelector(".card form");
 
@@ -95,8 +95,11 @@ public class ConfigurationPage extends BasePage {
     if (!canEditConfiguration()) {
       throw new SecurityException("User role " + currentUserRole + " cannot edit configuration");
     }
-    click(saveButton);
-    wait.until(ExpectedConditions.presenceOfElementLocated(configForm));
+    // A successful save redirects to the satellite detail page (see
+    // WebControllers#updateCfg) - that is the real signal to wait for, rather
+    // than ".card form", which could also match an unrelated form on
+    // whatever page we land on.
+    clickAndWaitForUrl(saveButton, "/satellites/");
   }
 
   public void saveConfigurationWithValues(

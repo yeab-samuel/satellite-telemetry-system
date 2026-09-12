@@ -16,8 +16,9 @@ public class MissionsPage extends BasePage {
   private final By groundStationSelect = By.cssSelector("select[name='groundStationId']");
   private final By startInput = By.cssSelector("input[name='start']");
   private final By endInput = By.cssSelector("input[name='end']");
-  private final By createMissionButton = By.cssSelector(".card:first-child button[type='submit']");
-  private final By createMissionForm = By.cssSelector(".card:first-child form");
+  private final By createMissionButton =
+      By.cssSelector("form[action='/missions'] button[type='submit']");
+  private final By createMissionForm = By.cssSelector("form[action='/missions']");
 
   // Locators - Mission Queue
   private final By missionTable = By.cssSelector(".table-wrap table");

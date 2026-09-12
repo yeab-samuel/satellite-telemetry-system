@@ -12,7 +12,7 @@
   <name>satellite-telemetry-system</name>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>17</java.version>
     <testcontainers.version>1.19.7</testcontainers.version>
     <!-- Set -DskipSystemTests=true to skip the Selenium suite (unit/integration tests still run) -->
     <skipSystemTests>false</skipSystemTests>
@@ -75,7 +75,7 @@
       </plugin>
 
       <!-- Boots the real application before the Selenium suite runs, and stops it
-           after wards, so system tests never hit a server that isn't there. Runs
+           afterwards, so system tests never hit a server that isn't there. Runs
            against an in-memory "it" profile (see application-it.yml) so it never
            touches the local dev database in ./data. -->
       <plugin>

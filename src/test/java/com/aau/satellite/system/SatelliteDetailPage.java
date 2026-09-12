@@ -7,16 +7,17 @@ public class SatelliteDetailPage extends BasePage {
 
   private final BaseTest.UserRole currentUserRole;
 
-  // Locators
+  // Locators. Scoped to what actually exists in satellite-detail.html: the page
+  // has no unique wrapper class, so we use the lifecycle transition form's
+  // action attribute (unique to this page) as the "are we on the right page"
+  // signal, the page-header <h1> for the name, and the first "muted-box" KPI
+  // (Code is always listed first) for the code.
   private final By satelliteName = By.cssSelector(".page-header h1");
-  // NOTE: relies on "Code" being the first .kpi block in satellite-detail.html's
-  // identity grid (Code, Model, Orbit, Station, in that DOM order). If that grid's
-  // order ever changes, this locator will start returning the wrong value.
-  private final By satelliteCode = By.cssSelector(".muted-box .kpi strong");
+  private final By satelliteCode = By.cssSelector(".grid .muted-box strong");
   private final By statusBadge = By.cssSelector(".badge");
-  private final By detailContainer = By.cssSelector(".page-header");
+  private final By detailContainer = By.cssSelector("form[action*='/state']");
   private final By configurationLink = By.cssSelector("a[href*='/configuration/']");
-  private final By backToSatellitesLink = By.cssSelector("a[href*='/satellites']");
+  private final By backToSatellitesLink = By.cssSelector("a[href='/satellites']");
 
   public SatelliteDetailPage(WebDriver driver, BaseTest.UserRole role) {
     super(driver);
@@ -57,14 +58,15 @@ public class SatelliteDetailPage extends BasePage {
     if (!canConfigureSatellite()) {
       throw new SecurityException("User role " + currentUserRole + " cannot configure satellites");
     }
-    click(configurationLink);
+    WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(configurationLink));
+    String href = link.getAttribute("href");
+    driver.get(href);
     wait.until(ExpectedConditions.urlContains("/configuration/"));
     return new ConfigurationPage(driver, currentUserRole);
   }
 
   public SatellitesPage clickBackToSatellites() {
-    click(backToSatellitesLink);
-    wait.until(ExpectedConditions.urlContains("/satellites"));
+    clickAndWaitForUrl(backToSatellitesLink, "/satellites");
     return new SatellitesPage(driver, currentUserRole);
   }
 

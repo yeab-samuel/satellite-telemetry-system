@@ -12,7 +12,7 @@ public class SatellitesPage extends BasePage {
   // Locators
   private final By searchInput = By.id("q");
   private final By statusDropdown = By.id("status");
-  private final By applyFiltersButton = By.cssSelector("button[type='submit']");
+  private final By applyFiltersButton = By.cssSelector("main form button[type='submit']");
   private final By resetButton = By.cssSelector("a[href='/satellites']");
   private final By tableWrap = By.cssSelector(".table-wrap");
   private final By tableRows = By.cssSelector(".table-wrap table tbody tr");
@@ -40,19 +40,20 @@ public class SatellitesPage extends BasePage {
 
   public void searchSatellites(String searchTerm) {
     sendKeys(searchInput, searchTerm);
-    click(applyFiltersButton);
-    wait.until(ExpectedConditions.presenceOfElementLocated(tableWrap));
+    driver.findElement(searchInput).submit();
+    wait.until(ExpectedConditions.urlContains("q=" + searchTerm));
   }
 
   public void filterByStatus(String status) {
-    Select select = new Select(driver.findElement(statusDropdown));
-    select.selectByVisibleText(status);
-    click(applyFiltersButton);
-    wait.until(ExpectedConditions.presenceOfElementLocated(tableWrap));
+    WebElement dropdown = driver.findElement(statusDropdown);
+    new Select(dropdown).selectByVisibleText(status);
+    dropdown.submit();
+    wait.until(ExpectedConditions.urlContains("status=" + status));
   }
 
   public void resetFilters() {
-    click(resetButton);
+    WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(resetButton));
+    driver.get(link.getAttribute("href"));
     wait.until(ExpectedConditions.urlToBe(BASE_URL + "/satellites"));
   }
 
@@ -65,7 +66,9 @@ public class SatellitesPage extends BasePage {
   }
 
   public SatelliteDetailPage clickFirstSatellite() {
-    click(satelliteLinks);
+    WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(satelliteLinks));
+    String href = link.getAttribute("href");
+    driver.get(href);
     wait.until(ExpectedConditions.urlContains("/satellites/"));
     return new SatelliteDetailPage(driver, currentUserRole);
   }
@@ -104,6 +107,10 @@ public class SatellitesPage extends BasePage {
 
   public boolean isApplyFiltersButtonDisplayed() {
     return isDisplayed(applyFiltersButton);
+  }
+
+  public boolean isResetButtonDisplayed() {
+    return isDisplayed(resetButton);
   }
 
   public boolean isFilterApplied(String filterParam) {

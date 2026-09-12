@@ -9,7 +9,7 @@ public class LoginPage extends BasePage {
   // Locators
   private final By usernameField = By.id("username");
   private final By passwordField = By.id("password");
-  private final By submitButton = By.cssSelector("button.btn");
+  private final By submitButton = By.cssSelector("button[type='submit']");
   private final By errorMessage = By.cssSelector(".notice.error");
   private final By successMessage = By.cssSelector(".notice.success");
   private final By brandMark = By.cssSelector(".brand-mark");

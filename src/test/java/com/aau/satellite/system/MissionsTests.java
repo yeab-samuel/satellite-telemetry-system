@@ -21,12 +21,10 @@ class MissionsTests extends BaseTest {
     loginAs("operator", "operator123");
     navigateTo("/missions");
 
-    // Wait for the mission creation form to load
     wait.until(
             ExpectedConditions.presenceOfElementLocated(
                     By.cssSelector(".card form[action*='/missions']")));
 
-    // Verify all form fields are present and visible
     assertTrue(driver.findElement(By.cssSelector("input[name='name']")).isDisplayed());
     assertTrue(driver.findElement(By.cssSelector("input[name='description']")).isDisplayed());
     assertTrue(driver.findElement(By.cssSelector("select[name='satelliteId']")).isDisplayed());
@@ -44,7 +42,6 @@ class MissionsTests extends BaseTest {
 
     wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".table-wrap")));
 
-    // Check if empty message exists and is visible
     WebElement emptyMsg = driver.findElement(By.cssSelector(".table-wrap .empty"));
     if (emptyMsg.isDisplayed()) {
       assertTrue(emptyMsg.getText().contains("No missions"));
@@ -58,32 +55,40 @@ class MissionsTests extends BaseTest {
     loginAs("operator", "operator123");
     navigateTo("/missions");
 
-    // Generate unique mission name using timestamp
     String missionName = "Test Mission " + System.currentTimeMillis();
     driver.findElement(By.cssSelector("input[name='name']")).sendKeys(missionName);
     driver
             .findElement(By.cssSelector("input[name='description']"))
             .sendKeys("Automated test mission");
 
-    // Select satellite from dropdown - use first available option
     Select satelliteSelect =
             new Select(driver.findElement(By.cssSelector("select[name='satelliteId']")));
     satelliteSelect.selectByIndex(0);
 
-    // Select ground station from dropdown - use first available option
     Select stationSelect =
             new Select(driver.findElement(By.cssSelector("select[name='groundStationId']")));
     stationSelect.selectByIndex(0);
 
-    // Fill mission time window
-    driver.findElement(By.cssSelector("input[name='start']")).sendKeys("2026-09-10T10:00:00Z");
-    driver.findElement(By.cssSelector("input[name='end']")).sendKeys("2026-09-10T11:00:00Z");
+    // Set the date fields directly via JavaScript rather than simulated
+    // keystrokes - sendKeys() on this field has proven unreliable in this
+    // environment (Chrome version dependent). This is a plain text input with
+    // no live validation/formatting JS reacting to keystrokes, so a direct
+    // value assignment is equivalent and far more robust.
+    WebElement startInput = driver.findElement(By.cssSelector("input[name='start']"));
+    ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].value = arguments[1];", startInput, "2026-09-10T10:00:00Z");
 
-    // Submit the form using the button with btn class
-    driver.findElement(By.cssSelector("button.btn")).click();
+    WebElement endInput = driver.findElement(By.cssSelector("input[name='end']"));
+    ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].value = arguments[1];", endInput, "2026-09-10T11:00:00Z");
 
-    // Wait for the mission table to appear and verify we stay on missions page
-    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".card .table-wrap")));
+    // Submit the form directly rather than clicking the button
+    endInput.submit();
+
+    // Wait for the mission we just created to actually appear in the table
+    wait.until(
+            ExpectedConditions.textToBePresentInElementLocated(
+                    By.cssSelector(".table-wrap"), missionName));
     assertTrue(driver.getCurrentUrl().contains("/missions"));
   }
 
@@ -94,59 +99,72 @@ class MissionsTests extends BaseTest {
     loginAs("operator", "operator123");
     navigateTo("/missions");
 
-    // Wait for the mission table to load
     wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".table-wrap")));
 
-    // Check if there are any missions
+    // Check if there are any missions. The empty-state message is rendered as
+    // <td class="empty">, not as a class on the <tr> itself, so we must look for
+    // a ".empty" descendant of the row rather than the row's own class attribute.
     List<WebElement> rows = driver.findElements(By.cssSelector(".table-wrap table tbody tr"));
-    boolean hasMissions = rows.size() > 0 && !rows.get(0).getAttribute("class").contains("empty");
+    boolean hasMissions =
+            rows.size() > 0 && rows.get(0).findElements(By.cssSelector(".empty")).isEmpty();
 
-    // If no missions exist, create one first
     if (!hasMissions) {
-      // Create a mission
       String missionName = "Status Test Mission " + System.currentTimeMillis();
       driver.findElement(By.cssSelector("input[name='name']")).sendKeys(missionName);
-      driver.findElement(By.cssSelector("input[name='description']")).sendKeys("Mission for status test");
+      driver
+              .findElement(By.cssSelector("input[name='description']"))
+              .sendKeys("Mission for status test");
 
-      Select satelliteSelect = new Select(driver.findElement(By.cssSelector("select[name='satelliteId']")));
+      Select satelliteSelect =
+              new Select(driver.findElement(By.cssSelector("select[name='satelliteId']")));
       satelliteSelect.selectByIndex(0);
 
-      Select stationSelect = new Select(driver.findElement(By.cssSelector("select[name='groundStationId']")));
+      Select stationSelect =
+              new Select(driver.findElement(By.cssSelector("select[name='groundStationId']")));
       stationSelect.selectByIndex(0);
 
-      driver.findElement(By.cssSelector("input[name='start']")).sendKeys("2026-09-10T10:00:00Z");
-      driver.findElement(By.cssSelector("input[name='end']")).sendKeys("2026-09-10T11:00:00Z");
-      driver.findElement(By.cssSelector("button.btn")).click();
+      WebElement startInput = driver.findElement(By.cssSelector("input[name='start']"));
+      ((JavascriptExecutor) driver)
+              .executeScript("arguments[0].value = arguments[1];", startInput, "2026-09-10T10:00:00Z");
 
-      wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".card .table-wrap")));
+      WebElement endInput = driver.findElement(By.cssSelector("input[name='end']"));
+      ((JavascriptExecutor) driver)
+              .executeScript("arguments[0].value = arguments[1];", endInput, "2026-09-10T11:00:00Z");
 
-      // Refresh the rows list after creating the mission
+      endInput.submit();
+
+      // Wait for the specific mission we just created to actually appear, not
+      // just for ".table-wrap" to exist (which is already true before
+      // submitting, so it never proved the page had reloaded).
+      wait.until(
+              ExpectedConditions.textToBePresentInElementLocated(
+                      By.cssSelector(".table-wrap"), missionName));
+
       rows = driver.findElements(By.cssSelector(".table-wrap table tbody tr"));
     }
 
-    // Find the first mission row (skip empty message if present)
     WebElement firstRow = null;
     for (WebElement row : rows) {
-      if (!row.getAttribute("class").contains("empty")) {
+      if (row.findElements(By.cssSelector(".empty")).isEmpty()) {
         firstRow = row;
         break;
       }
     }
 
-    // If still no mission found, fail the test
     if (firstRow == null) {
       fail("No missions available to update status");
     }
 
-    // Find the status dropdown within the row's form and select first option
-    Select statusSelect = new Select(firstRow.findElement(By.cssSelector("form select[name='status']")));
-    statusSelect.selectByIndex(0);
+    // A freshly created mission starts in DRAFT, and the only valid
+    // transitions from DRAFT are to SCHEDULED or CANCELLED (see
+    // MissionService.transition).
+    Select statusSelect =
+            new Select(firstRow.findElement(By.cssSelector("form select[name='status']")));
+    statusSelect.selectByVisibleText("SCHEDULED");
 
-    // Find and click the Apply button within the same form
     WebElement applyBtn = firstRow.findElement(By.cssSelector("form button.btn[type='submit']"));
-    applyBtn.click();
+    applyBtn.submit();
 
-    // Wait for the table to reload and verify we stay on missions page
     wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".table-wrap")));
     assertTrue(driver.getCurrentUrl().contains("/missions"));
   }
@@ -158,15 +176,14 @@ class MissionsTests extends BaseTest {
     loginAs("operator", "operator123");
     navigateTo("/missions");
 
-    // Wait for the create mission form to load
     wait.until(
             ExpectedConditions.presenceOfElementLocated(
                     By.cssSelector(".card form[action*='/missions']")));
 
-    // Submit the form without filling any fields to trigger validation
-    driver.findElement(By.cssSelector(".card form[action*='/missions'] button.btn")).click();
+    WebElement nameInput =
+            driver.findElement(By.cssSelector(".card form[action*='/missions'] input[name='name']"));
+    nameInput.submit();
 
-    // Verify we remain on the missions page (validation prevents submission)
     wait.until(ExpectedConditions.urlContains("/missions"));
     assertTrue(driver.getCurrentUrl().contains("/missions"));
   }

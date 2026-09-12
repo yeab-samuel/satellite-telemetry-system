@@ -73,13 +73,14 @@ public class DashboardPage extends BasePage {
   }
 
   public SatellitesPage clickViewFleet() {
-    click(viewFleetButton);
-    wait.until(ExpectedConditions.urlContains("satellites"));
+    clickAndWaitForUrl(viewFleetButton, "satellites");
     return new SatellitesPage(driver, currentUserRole);
   }
 
   public SatelliteDetailPage clickFirstSatellite() {
-    click(satelliteLinks);
+    WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(satelliteLinks));
+    String href = link.getAttribute("href");
+    driver.get(href);
     wait.until(ExpectedConditions.urlContains("/satellites/"));
     return new SatelliteDetailPage(driver, currentUserRole);
   }

@@ -19,7 +19,7 @@
                 <div class="field"><label for="q">Search</label><input id="q" class="input" name="q" th:value="${q}" placeholder="Code or satellite name"></div>
                 <div class="field"><label for="status">Status</label><select id="status" name="status"><option value="">All statuses</option><option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == selected}"></option></select></div>
             </div>
-            <div class="actions" style="margin-top:16px"><button id="applyFilters" class="btn" type="submit">Apply filters</button><a class="btn secondary" href="/satellites">Reset</a></div>
+            <div class="actions" style="margin-top:16px"><button class="btn" type="submit">Apply filters</button><a class="btn secondary" href="/satellites">Reset</a></div>
         </form>
     </section>
 
@@ -29,13 +29,13 @@
             <table>
                 <thead><tr><th>Code</th><th>Name</th><th>Orbit</th><th>Status</th><th>Station</th></tr></thead>
                 <tbody>
-                <tr th:each="s : ${satellites}">
-                    <td><a th:href="@{/satellites/{id}(id=${s.id})}" th:text="${s.code}">SAT-001</a></td>
-                    <td th:text="${s.name}">Abyssinia-1</td><td th:text="${s.orbitType}">LEO</td>
-                    <td><span class="badge" th:classappend="${s.status.name() == 'OPERATIONAL'} ? ' success' : (${s.status.name() == 'DEGRADED' or s.status.name() == 'SAFE_MODE'} ? ' warning' : '')" th:text="${s.status}">OPERATIONAL</span></td>
-                    <td th:text="${s.groundStation != null ? s.groundStation.code : 'Unassigned'}">GS-ADD-01</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(satellites)}"><td colspan="5" class="empty">No satellites match your filters.</td></tr>
+                    <tr th:each="s : ${satellites}">
+                        <td><a th:href="@{/satellites/{id}(id=${s.id})}" th:text="${s.code}">SAT-001</a></td>
+                        <td th:text="${s.name}">Abyssinia-1</td><td th:text="${s.orbitType}">LEO</td>
+                        <td><span class="badge" th:classappend="${s.status.name() == 'OPERATIONAL'} ? ' success' : (${s.status.name() == 'DEGRADED' or s.status.name() == 'SAFE_MODE'} ? ' warning' : '')" th:text="${s.status}">OPERATIONAL</span></td>
+                        <td th:text="${s.groundStation != null ? s.groundStation.code : 'Unassigned'}">GS-ADD-01</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(satellites)}"><td colspan="5" class="empty">No satellites match your filters.</td></tr>
                 </tbody>
             </table>
         </div>

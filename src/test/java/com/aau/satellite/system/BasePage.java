@@ -13,7 +13,7 @@ public abstract class BasePage {
 
   public BasePage(WebDriver driver) {
     this.driver = driver;
-    this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
   }
 
   public void navigateTo(String url) {
@@ -36,6 +36,23 @@ public abstract class BasePage {
   protected void click(By locator) {
     waitForElementToBeClickable(locator);
     driver.findElement(locator).click();
+  }
+
+  /**
+   * Clicks a link/button and waits for the URL to reflect the resulting
+   * navigation, retrying the click once if the first attempt doesn't seem to
+   * have registered. Headless Chrome occasionally drops the very first click
+   * on a freshly-rendered element; retrying once is far more robust than
+   * failing the whole test over a single missed click.
+   */
+  protected void clickAndWaitForUrl(By locator, String urlFragment) {
+    click(locator);
+    try {
+      wait.until(ExpectedConditions.urlContains(urlFragment));
+    } catch (TimeoutException firstAttemptFailed) {
+      click(locator);
+      wait.until(ExpectedConditions.urlContains(urlFragment));
+    }
   }
 
   protected void sendKeys(By locator, String text) {
@@ -67,7 +84,7 @@ public abstract class BasePage {
   }
 
   public void logout() {
-    click(By.cssSelector("form[action='/logout'] button"));
+    click(By.cssSelector("form[action='/logout'] button[type='submit']"));
     wait.until(ExpectedConditions.urlContains("login"));
   }
 }

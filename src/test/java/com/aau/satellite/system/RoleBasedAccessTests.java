@@ -3,6 +3,8 @@ package com.aau.satellite.system;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 @Tag("system")
 @DisplayName("Role-Based Access Control Tests")
@@ -73,10 +75,12 @@ class RoleBasedAccessTests extends BaseTest {
 
     driver.get(BASE_URL + "/configuration/1");
 
-    String currentUrl = driver.getCurrentUrl();
-    assertTrue(
-        currentUrl.contains("login")
-            || currentUrl.contains("error")
-            || currentUrl.contains("dashboard"));
+    // Spring forwards internally to the error view for a 403, rather than
+    // redirecting, so the address bar keeps showing /configuration/1. The
+    // reliable signal is the rendered error page content, not the URL.
+    assertTrue(driver.getTitle().toLowerCase().contains("error"));
+    WebElement main = driver.findElement(By.cssSelector("main"));
+    assertTrue(main.getText().toLowerCase().contains("forbidden")
+        || main.getText().toLowerCase().contains("request"));
   }
 }
