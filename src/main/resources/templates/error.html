@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Request error | SAT-MC</title><link rel="stylesheet" href="/app.css"></head>
+<body>
+<main class="container" style="max-width:760px">
+    <div class="card" style="margin-top:70px;text-align:center">
+        <div class="eyebrow">Mission Control</div>
+        <h1>We couldn't complete that request</h1>
+        <p class="page-subtitle" th:text="${error}">The request could not be completed.</p>
+        <div class="actions" style="justify-content:center;margin-top:22px">
+            <a class="btn" href="/dashboard">Return to dashboard</a>
+            <a class="btn secondary" href="/login">Sign-in page</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

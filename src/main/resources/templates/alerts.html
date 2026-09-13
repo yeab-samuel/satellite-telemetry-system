@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'SAT-MC | Mission Control'">SAT-MC | Mission Control</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar(${active})}"></div>
+<main class="container">
+    <div class="page-header"><div><div class="eyebrow">Safety</div><h1>Alert Management</h1><p class="page-subtitle">Review telemetry anomalies and move alerts through their lifecycle.</p></div></div>
+    <section class="card">
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Satellite</th><th>Type</th><th>Severity</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <tr th:each="a : ${alerts}">
+                        <td th:text="${a.satelliteId}">SAT-001</td><td th:text="${a.alertType}">TELEMETRY</td>
+                        <td><span class="badge" th:classappend="${a.severity.name() == 'CRITICAL'} ? ' danger' : (${a.severity.name() == 'WARNING'} ? ' warning' : ' success')" th:text="${a.severity}">WARNING</span></td>
+                        <td th:text="${a.status}">NEW</td><td class="small" th:text="${a.createdAt}">2026-09-06</td>
+                        <td>
+                            <div class="actions">
+                                <form class="inline-form" th:if="${a.status.name() == 'NEW' or a.status.name() == 'ESCALATED'}" method="post" th:action="@{/alerts/{id}/acknowledge(id=${a.id})}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button class="btn" type="submit">Acknowledge</button>
+                                </form>
+                                <form class="inline-form" th:if="${a.status.name() == 'ACKNOWLEDGED'}" method="post" th:action="@{/alerts/{id}/resolve(id=${a.id})}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button class="btn secondary" type="submit">Resolve</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(alerts)}"><td colspan="6" class="empty">No alerts to display.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main></body></html>
