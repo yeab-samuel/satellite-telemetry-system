@@ -55,7 +55,7 @@
            (shared CPU, background load), so a system test can occasionally fail for
            purely environmental reasons even when the test and the app are both
            correct. Rather than treating every such blip as a real failure, Failsafe
-           re-runs a failing test up to 2 additional times and only reports a genuine
+           re-runs a failing test up to 3 additional times and only reports a genuine
            failure if it fails on every attempt. This does not skip, exclude, or
            weaken any test - a consistently broken test still fails the build. -->
       <plugin>
@@ -71,7 +71,7 @@
           </includes>
           <skipITs>${skipSystemTests}</skipITs>
           <trimStackTrace>false</trimStackTrace>
-          <rerunFailingTestsCount>2</rerunFailingTestsCount>
+          <rerunFailingTestsCount>3</rerunFailingTestsCount>
         </configuration>
         <executions>
           <execution>

@@ -46,22 +46,22 @@ public abstract class BasePage {
    * for the common case where it works fine.
    */
   protected void click(By locator) {
-      waitForElementToBeClickable(locator);
-      WebElement element = driver.findElement(locator);
-      try {
-        element.click();
-      } catch (WebDriverException e) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-      }
+    waitForElementToBeClickable(locator);
+    WebElement element = driver.findElement(locator);
+    try {
+      element.click();
+    } catch (WebDriverException e) {
+      ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+    }
   }
 
   /**
    * Clicks a link/button and waits for the URL to reflect the resulting
-   * navigation, retrying the click up to two more times if it doesn't seem to
-   * have registered. Headless Chrome occasionally drops a click on a
-   * freshly-rendered element, and CI runners need more headroom than local
-   * machines; retrying is far more robust than failing the whole test over a
-   * single missed click.
+   * navigation, retrying up to two more times if it doesn't seem to have
+   * registered. A short pause is added between attempts: on a congested CI
+   * runner, retrying instantly often just collides with the same momentary
+   * slowdown, so giving it a beat to recover makes the retry meaningfully
+   * more likely to succeed.
    */
   protected void clickAndWaitForUrl(By locator, String urlFragment) {
     TimeoutException lastFailure = null;
@@ -72,6 +72,11 @@ public abstract class BasePage {
         return;
       } catch (TimeoutException e) {
         lastFailure = e;
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+          Thread.currentThread().interrupt();
+        }
       }
     }
     throw lastFailure;
@@ -79,21 +84,24 @@ public abstract class BasePage {
 
   /**
    * Types into a field, explicitly clicking it first to guarantee it has
-   * keyboard focus. Visibility alone doesn't guarantee an element is focused,
-   * and in headless Chrome sendKeys() can silently type into nothing if the
-   * field was never actually focused first.
+   * keyboard focus, and retrying if the typed value doesn't stick. Visibility
+   * alone doesn't guarantee an element is focused, and in headless Chrome
+   * sendKeys() can silently type into nothing if the field was never actually
+   * focused first.
    */
   protected void sendKeys(By locator, String text) {
-      for (int attempt = 0; attempt < 3; attempt++) {
-        waitForElement(locator);
-        WebElement element = driver.findElement(locator);
-        element.click();
-        element.clear();
-        element.sendKeys(text);
-        if (text.equals(element.getAttribute("value"))) {
-          return;
-        }
+    for (int attempt = 0; attempt < 3; attempt++) {
+      waitForElement(locator);
+      WebElement element = driver.findElement(locator);
+      element.click();
+      element.clear();
+      element.sendKeys(text);
+      if (text.equals(element.getAttribute("value"))) {
+        return;
       }
+    }
+    // Final attempt's result stands; if it's still wrong, the caller's own
+    // wait.until(...) will surface a clear timeout as before.
   }
 
   protected String getText(By locator) {
