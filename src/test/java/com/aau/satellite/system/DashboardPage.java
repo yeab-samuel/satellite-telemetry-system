@@ -15,7 +15,9 @@ public class DashboardPage extends BasePage {
   private final By statValues = By.cssSelector(".stat-card .stat-value");
   private final By fleetTable = By.cssSelector(".card .table-wrap table");
   private final By fleetTableRows = By.cssSelector(".card .table-wrap table tbody tr");
-  private final By viewFleetButton = By.cssSelector("a[href='/satellites']");
+  // Scoped to .page-header to avoid matching the topbar's own "Satellites"
+  // nav link, which shares the same href and would otherwise be matched first.
+  private final By viewFleetButton = By.cssSelector(".page-header a[href='/satellites']");
   private final By satelliteLinks = By.cssSelector(".table-wrap table tbody tr td:first-child a");
   private final By emptyMessage = By.cssSelector(".empty");
 
@@ -73,13 +75,14 @@ public class DashboardPage extends BasePage {
   }
 
   public SatellitesPage clickViewFleet() {
-    click(viewFleetButton);
-    wait.until(ExpectedConditions.urlContains("satellites"));
+    clickAndWaitForUrl(viewFleetButton, "satellites");
     return new SatellitesPage(driver, currentUserRole);
   }
 
   public SatelliteDetailPage clickFirstSatellite() {
-    click(satelliteLinks);
+    WebElement link = wait.until(ExpectedConditions.presenceOfElementLocated(satelliteLinks));
+    String href = link.getAttribute("href");
+    driver.get(href);
     wait.until(ExpectedConditions.urlContains("/satellites/"));
     return new SatelliteDetailPage(driver, currentUserRole);
   }

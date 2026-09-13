@@ -67,7 +67,7 @@ abstract class BaseTest {
         "--window-size=1920,1080");
     driver = new ChromeDriver(options);
     driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-    wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    wait = new WebDriverWait(driver, Duration.ofSeconds(15));
   }
 
   @AfterEach

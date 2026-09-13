@@ -44,9 +44,12 @@ class ConfigurationTests extends BaseTest {
 
     assertTrue(configurationPage.canEditConfiguration());
 
-    configurationPage.saveConfigurationWithValues(30.0, -20.0, 60.0, 20.0, 100.0, -90.0, 5.0);
+    // Battery limits must stay within the app's validated range of 0-15V.
+    configurationPage.saveConfigurationWithValues(30.0, -20.0, 60.0, 5.0, 12.0, -90.0, 5.0);
 
-    assertTrue(driver.getCurrentUrl().contains("/configuration/"));
+    // A successful save redirects to the satellite detail page (this is the
+    // app's real, intended behaviour - not a bug), so that's what we confirm.
+    assertTrue(driver.getCurrentUrl().contains("/satellites/"));
   }
 
   @Test

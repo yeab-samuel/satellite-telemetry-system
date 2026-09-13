@@ -17,8 +17,7 @@ public class TelemetryValidationService {
         v == Partition.CRITICAL_LOW || v == Partition.LOW,
         s == Partition.CRITICAL_LOW || s == Partition.LOW,
         t == Partition.CRITICAL_LOW || t == Partition.CRITICAL_HIGH,
-        r.getPacketLossPercent() > TelemetryThresholds.PACKET_LOSS_DEGRADED,
-        r.getPacketLossPercent() > TelemetryThresholds.PACKET_LOSS_CRITICAL);
+        r.getPacketLossPercent() > TelemetryThresholds.PACKET_LOSS_DEGRADED);
   }
 
   Partition classifyVoltage(double x) {

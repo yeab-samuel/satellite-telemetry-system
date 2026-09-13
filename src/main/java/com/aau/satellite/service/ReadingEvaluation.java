@@ -15,8 +15,7 @@ public record ReadingEvaluation(
     boolean voltageLow,
     boolean signalWeak,
     boolean tempCritical,
-    boolean packetLossHigh,
-    boolean packetLossCritical) {
+    boolean packetLossHigh) {
 
   /**
    * Determines whether the reading is completely healthy.
@@ -28,12 +27,7 @@ public record ReadingEvaluation(
   }
 
   /**
-   * Counts the number of threshold breaches that feed the decision table.
-   *
-   * <p>packetLossCritical is deliberately NOT counted here: it isn't a fifth
-   * independent condition, it's a refinement of packetLossHigh (packet loss
-   * above the critical threshold is always also above the "high" one). It's
-   * used separately, as a severity override, in AlertEvaluationService.
+   * Counts the number of threshold breaches.
    *
    * @return number of breached telemetry conditions
    */

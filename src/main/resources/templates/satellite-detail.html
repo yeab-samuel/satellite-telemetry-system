@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,7 +31,7 @@
                 <div class="field"><label>Target state</label><select name="status"><option th:each="s : ${T(com.aau.satellite.domain.SatelliteStatus).values()}" th:value="${s}" th:text="${s}"></option></select></div>
                 <button class="btn" style="margin-top:15px" type="submit">Transition state</button>
             </form>
-            <a class="btn secondary" style="margin-top:10px" th:href="@{/configuration/{id}(id=${satellite.id})}">Configure telemetry</a>
+            <a class="btn secondary" style="margin-top:10px" sec:authorize="hasAnyRole('ADMIN','ENGINEER')" th:href="@{/configuration/{id}(id=${satellite.id})}">Configure telemetry</a>
         </section>
     </div>
 
