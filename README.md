@@ -1,4 +1,5 @@
 # SAT-MC — Satellite Mission Control & Telemetry Management
+[![CI](https://github.com/yeab-samuel/satellite-telemetry-system/actions/workflows/ci.yml/badge.svg?branch=stabilized-tests)](https://github.com/yeab-samuel/satellite-telemetry-system/actions/workflows/ci.yml)
 
 A Spring Boot 3 application created for the Addis Ababa University **Software Testing and Validation** final project. The system is intentionally small but contains business rules, role-based access control, state transitions, telemetry validation, a web UI, API endpoints, and automated tests.
 
