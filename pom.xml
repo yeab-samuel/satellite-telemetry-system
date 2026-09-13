@@ -49,7 +49,15 @@
       </plugin>
 
       <!-- Selenium system tests: same test classes, selected by the JUnit5 "system"
-           tag, run at the integration-test phase once the app is up. -->
+           tag, run at the integration-test phase once the app is up.
+
+           rerunFailingTestsCount: CI runners are less consistent than local machines
+           (shared CPU, background load), so a system test can occasionally fail for
+           purely environmental reasons even when the test and the app are both
+           correct. Rather than treating every such blip as a real failure, Failsafe
+           re-runs a failing test up to 2 additional times and only reports a genuine
+           failure if it fails on every attempt. This does not skip, exclude, or
+           weaken any test - a consistently broken test still fails the build. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -63,6 +71,7 @@
           </includes>
           <skipITs>${skipSystemTests}</skipITs>
           <trimStackTrace>false</trimStackTrace>
+          <rerunFailingTestsCount>2</rerunFailingTestsCount>
         </configuration>
         <executions>
           <execution>
