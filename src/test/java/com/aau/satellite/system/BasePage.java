@@ -39,9 +39,20 @@ public abstract class BasePage {
     wait.until(ExpectedConditions.elementToBeClickable(locator));
   }
 
+  /**
+   * Clicks an element, falling back to a JS-triggered click if the native click
+   * doesn't register (a known quirk with certain elements in newer headless
+   * Chrome). The native click is always tried first, so this changes nothing
+   * for the common case where it works fine.
+   */
   protected void click(By locator) {
-    waitForElementToBeClickable(locator);
-    driver.findElement(locator).click();
+      waitForElementToBeClickable(locator);
+      WebElement element = driver.findElement(locator);
+      try {
+        element.click();
+      } catch (WebDriverException e) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+      }
   }
 
   /**
@@ -66,10 +77,23 @@ public abstract class BasePage {
     throw lastFailure;
   }
 
+  /**
+   * Types into a field, explicitly clicking it first to guarantee it has
+   * keyboard focus. Visibility alone doesn't guarantee an element is focused,
+   * and in headless Chrome sendKeys() can silently type into nothing if the
+   * field was never actually focused first.
+   */
   protected void sendKeys(By locator, String text) {
-    waitForElement(locator);
-    driver.findElement(locator).clear();
-    driver.findElement(locator).sendKeys(text);
+      for (int attempt = 0; attempt < 3; attempt++) {
+        waitForElement(locator);
+        WebElement element = driver.findElement(locator);
+        element.click();
+        element.clear();
+        element.sendKeys(text);
+        if (text.equals(element.getAttribute("value"))) {
+          return;
+        }
+      }
   }
 
   protected String getText(By locator) {

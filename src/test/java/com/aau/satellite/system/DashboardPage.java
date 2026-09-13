@@ -15,7 +15,9 @@ public class DashboardPage extends BasePage {
   private final By statValues = By.cssSelector(".stat-card .stat-value");
   private final By fleetTable = By.cssSelector(".card .table-wrap table");
   private final By fleetTableRows = By.cssSelector(".card .table-wrap table tbody tr");
-  private final By viewFleetButton = By.cssSelector("a[href='/satellites']");
+  // Scoped to .page-header to avoid matching the topbar's own "Satellites"
+  // nav link, which shares the same href and would otherwise be matched first.
+  private final By viewFleetButton = By.cssSelector(".page-header a[href='/satellites']");
   private final By satelliteLinks = By.cssSelector(".table-wrap table tbody tr td:first-child a");
   private final By emptyMessage = By.cssSelector(".empty");
 

@@ -13,7 +13,9 @@ public class SatellitesPage extends BasePage {
   private final By searchInput = By.id("q");
   private final By statusDropdown = By.id("status");
   private final By applyFiltersButton = By.cssSelector("main form button[type='submit']");
-  private final By resetButton = By.cssSelector("a[href='/satellites']");
+  // Scoped to .actions to avoid matching the topbar's own "Satellites" nav
+  // link, which shares the same href and would otherwise be matched first.
+  private final By resetButton = By.cssSelector(".actions a[href='/satellites']");
   private final By tableWrap = By.cssSelector(".table-wrap");
   private final By tableRows = By.cssSelector(".table-wrap table tbody tr");
   private final By satelliteLinks = By.cssSelector(".table-wrap table tbody tr td:first-child a");
@@ -40,9 +42,6 @@ public class SatellitesPage extends BasePage {
 
   public void searchSatellites(String searchTerm) {
     sendKeys(searchInput, searchTerm);
-    // Make sure the browser has actually registered the typed value before
-    // submitting — on slower/CI environments, submit() can otherwise fire
-    // before the input's value has "settled", submitting an empty query.
     wait.until(ExpectedConditions.attributeToBe(searchInput, "value", searchTerm));
     driver.findElement(searchInput).submit();
     wait.until(ExpectedConditions.urlContains("q=" + searchTerm));
