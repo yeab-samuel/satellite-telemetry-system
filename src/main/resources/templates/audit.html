@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'SAT-MC | Mission Control'">SAT-MC | Mission Control</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar(${active})}"></div>
+<main class="container">
+    <div class="page-header"><div><div class="eyebrow">Traceability</div><h1>Audit Trail</h1><p class="page-subtitle">A chronological record of important actions performed in Mission Control.</p></div></div>
+    <section class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead>
+        <tbody>
+            <tr th:each="l : ${logs}"><td class="small" th:text="${l.timestamp}">2026-09-06</td><td th:text="${l.username}">operator</td><td><strong th:text="${l.action}">CHANGE_STATE</strong></td><td th:text="${l.entityType + ' ' + l.entityId}">SATELLITE 1</td><td th:text="${l.details}">Details</td></tr>
+            <tr th:if="${#lists.isEmpty(logs)}"><td colspan="5" class="empty">No audit events have been recorded.</td></tr>
+        </tbody>
+    </table></div></section>
+</main></body></html>

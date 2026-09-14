@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'SAT-MC | Mission Control'">SAT-MC | Mission Control</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar(${active})}"></div>
+<main class="container">
+    <div class="page-header"><div><div class="eyebrow">Planning</div><h1>Mission Scheduling</h1><p class="page-subtitle">Create missions and validate their state transitions.</p></div></div>
+
+    <section class="card">
+        <div class="card-title"><h2>Create mission</h2><span class="small">Minimum duration: 10 minutes</span></div>
+        <form method="post" action="/missions">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="formgrid">
+                <div class="field"><label>Mission name</label><input class="input" name="name" placeholder="e.g. Morning telemetry pass" required></div>
+                <div class="field"><label>Description</label><input class="input" name="description" placeholder="Mission purpose"></div>
+                <div class="field"><label>Satellite</label><select name="satelliteId"><option th:each="s : ${satellites}" th:value="${s.id}" th:text="${s.code + ' — ' + s.name}"></option></select></div>
+                <div class="field"><label>Ground station</label><select name="groundStationId"><option th:each="g : ${stations}" th:value="${g.id}" th:text="${g.code + ' — ' + g.name}"></option></select></div>
+                <div class="field"><label>Start (UTC ISO-8601)</label><input class="input" name="start" placeholder="2026-09-10T10:00:00Z" required></div>
+                <div class="field"><label>End (UTC ISO-8601)</label><input class="input" name="end" placeholder="2026-09-10T11:00:00Z" required></div>
+            </div>
+            <button class="btn" style="margin-top:18px" type="submit">Create mission</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="card-title"><h2>Mission queue</h2><span class="small" th:text="${#lists.size(missions)} + ' mission(s)'">0 missions</span></div>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Mission</th><th>Satellite</th><th>Station</th><th>Status</th><th>Transition</th></tr></thead>
+            <tbody>
+                <tr th:each="m : ${missions}">
+                    <td><strong th:text="${m.name}">Mission</strong><div class="small" th:text="${m.description}">Description</div></td>
+                    <td th:text="${m.satellite.code}">SAT-001</td><td th:text="${m.groundStation.code}">GS-ADD-01</td>
+                    <td><span class="badge" th:text="${m.status}">DRAFT</span></td>
+                    <td><form class="inline-form" method="post" th:action="@{/missions/{id}/state(id=${m.id})}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <select name="status"><option th:each="s : ${T(com.aau.satellite.domain.MissionStatus).values()}" th:value="${s}" th:text="${s}"></option></select>
+                        <button class="btn" type="submit">Apply</button>
+                    </form></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(missions)}"><td colspan="5" class="empty">No missions have been created yet.</td></tr>
+            </tbody>
+        </table></div>
+    </section>
+</main></body></html>

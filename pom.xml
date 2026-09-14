@@ -1,0 +1,157 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+  <groupId>com.aau</groupId>
+  <artifactId>satellite-telemetry-system</artifactId>
+  <version>1.0.0</version>
+  <name>satellite-telemetry-system</name>
+
+  <properties>
+    <java.version>17</java.version>
+    <testcontainers.version>1.19.7</testcontainers.version>
+    <!-- Set -DskipSystemTests=true to skip the Selenium suite (unit/integration tests still run) -->
+    <skipSystemTests>false</skipSystemTests>
+  </properties>
+
+  <dependencies>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-thymeleaf</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-jpa</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-validation</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-security</artifactId></dependency>
+    <dependency><groupId>org.thymeleaf.extras</groupId><artifactId>thymeleaf-extras-springsecurity6</artifactId></dependency>
+    <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><scope>runtime</scope></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.springframework.security</groupId><artifactId>spring-security-test</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.testcontainers</groupId><artifactId>junit-jupiter</artifactId><version>${testcontainers.version}</version><scope>test</scope></dependency>
+    <dependency><groupId>org.testcontainers</groupId><artifactId>postgresql</artifactId><version>${testcontainers.version}</version><scope>test</scope></dependency>
+    <dependency><groupId>org.seleniumhq.selenium</groupId><artifactId>selenium-java</artifactId><version>4.21.0</version><scope>test</scope></dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <!-- Unit + integration tests (fast, no server needed). System-tagged tests are
+           excluded here and handed to Failsafe below, which runs them AFTER the
+           application has actually been started. This is what makes the Selenium
+           suite run automatically instead of being silently skipped. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludedGroups>system</excludedGroups>
+        </configuration>
+      </plugin>
+
+      <!-- Selenium system tests: same test classes, selected by the JUnit5 "system"
+           tag, run at the integration-test phase once the app is up.
+
+           rerunFailingTestsCount: CI runners are less consistent than local machines
+           (shared CPU, background load), so a system test can occasionally fail for
+           purely environmental reasons even when the test and the app are both
+           correct. Rather than treating every such blip as a real failure, Failsafe
+           re-runs a failing test up to 3 additional times and only reports a genuine
+           failure if it fails on every attempt. This does not skip, exclude, or
+           weaken any test - a consistently broken test still fails the build. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <groups>system</groups>
+          <includes>
+            <include>**/*Tests.java</include>
+            <include>**/*Test.java</include>
+            <include>**/*IT.java</include>
+          </includes>
+          <skipITs>${skipSystemTests}</skipITs>
+          <trimStackTrace>false</trimStackTrace>
+          <rerunFailingTestsCount>2</rerunFailingTestsCount>
+          <parallel>none</parallel>
+          <useSystemClassLoader>true</useSystemClassLoader>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Boots the real application before the Selenium suite runs, and stops it
+           afterwards, so system tests never hit a server that isn't there. Runs
+           against an in-memory "it" profile (see application-it.yml) so it never
+           touches the local dev database in ./data. -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>pre-integration-test</id>
+            <phase>pre-integration-test</phase>
+            <goals><goal>start</goal></goals>
+            <configuration>
+              <skip>${skipSystemTests}</skip>
+              <arguments>
+                <argument>--spring.profiles.active=it</argument>
+              </arguments>
+              <maxAttempts>60</maxAttempts>
+              <wait>1000</wait>
+            </configuration>
+          </execution>
+          <execution>
+            <id>post-integration-test</id>
+            <phase>post-integration-test</phase>
+            <goals><goal>stop</goal></goals>
+            <configuration>
+              <skip>${skipSystemTests}</skip>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.11</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals><goal>prepare-agent</goal></goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals><goal>report</goal></goals>
+          </execution>
+          <execution>
+            <id>check</id>
+            <goals><goal>check</goal></goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.80</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
