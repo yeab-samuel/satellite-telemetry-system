@@ -4,7 +4,7 @@ public final class TelemetryThresholds {
   private TelemetryThresholds() {}
 
   public static final double VOLTAGE_CRITICAL_LOW = 6.5,
-      VOLTAGE_LOW = 7.2,
+      VOLTAGE_LOW = 7.0,
       VOLTAGE_HIGH = 8.4,
       VOLTAGE_CRITICAL_HIGH = 9.0;
   public static final double TEMP_CRITICAL_LOW = -20,
