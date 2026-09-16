@@ -109,4 +109,19 @@ class AlertLifecycleServiceTest {
         Alert a = alertWithStatus(AlertStatus.ACKNOWLEDGED);
         assertThrows(InvalidStateTransitionException.class, () -> s.escalate(a));
     }
+
+    @Test
+    void spy_wraps_the_real_escalate_call_and_records_it() {
+        // spy() wraps a REAL AlertLifecycleService — escalate() actually runs
+        // its real logic below. A mock would replace that logic entirely; a
+        // spy lets it run for real while still letting us verify the call,
+        // which is what makes it a spy rather than a stub or a mock.
+        AlertLifecycleService spyService = spy(s);
+        Alert a = alertWithStatus(AlertStatus.NEW);
+
+        Alert result = spyService.escalate(a);
+
+        assertEquals(AlertStatus.ESCALATED, result.getStatus()); // real logic ran
+        verify(spyService).escalate(a); // spy recorded the call
+    }
 }
