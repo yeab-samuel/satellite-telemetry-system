@@ -14,13 +14,6 @@ jobs:
           java-version: '17'
           cache: maven
 
-      # ubuntu-latest already ships Google Chrome; Selenium Manager (bundled with
-      # Selenium 4.6+) resolves a matching chromedriver automatically, so no extra
-      # setup step is needed here.
-
-      # Runs unit tests, integration tests, AND the Selenium system tests:
-      # `verify` starts the app headlessly, runs the system-tagged tests against it,
-      # then stops the app again (see pom.xml). Nothing opens a visible browser.
       - name: Run full test suite (unit, integration, system)
         run: mvn -B clean verify
 
