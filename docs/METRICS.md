@@ -9,5 +9,4 @@ DRE = defects removed before release / (defects removed before release + escaped
 ## Coverage
 Record statement and branch coverage from `target/site/jacoco/index.html`. The assignment target is at least 80% branch coverage for core business logic.
 
-## Escaped defects
-Record defects discovered after the planned test execution, if any.
+
